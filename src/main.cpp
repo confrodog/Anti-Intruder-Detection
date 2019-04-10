@@ -29,12 +29,17 @@ int main(void){
   initTimer1(); //for testing
   initLED(); //for testing
   initPIR(); //motion sensor
-  delayMs(60000); //PIR takes a minute to warm up
+  delayMs(10000); //PIR takes a minute to warm up
   
   initADXL345(); //accelerometer
   initPWMTimer3();
   initSwitchPB1();
+  int buttonpin=3; //define the port of light blocking module
+  int val = HIGH;//define digital variable val
+  int prevVal = HIGH;
 
+  // pinMode(Led,OUTPUT);//define digital variable val
+  pinMode(buttonpin,INPUT);//define light blocking module as a output port
 
   while(1) {
 
@@ -52,6 +57,9 @@ int main(void){
         state = waitPress;
         break;
     }
+      //read the photointerrupter 
+      val=digitalRead(buttonpin);
+
       //bool to check if the device has been moved past the thresh value
       tooFar = (abs(getZ()) > thresh);
 
@@ -63,21 +71,31 @@ int main(void){
       if (motionB != prevMotion) {
         Serial.print("Motion: \t");
         Serial.println(motionB);
+        Serial.flush();
         prevMotion = motionB;
       }
       if (tooFar != prevTooFar) {
         Serial.print("isMoved: \t");
         Serial.println(tooFar);
+        Serial.flush();
         prevTooFar = tooFar;
       }
+      if (val != prevVal) {
+        Serial.print("laser interrupted: \t");
+        Serial.println(val);
+        Serial.flush();
+        prevVal = val;
+      }
+
+      // 
   
-      while(deviceOn && (tooFar|| motionB) ){ // took out motion here, but will need later
+      while(deviceOn && (tooFar|| motionB || val)){ // took out motion here, but will need later
         lightLED();
         triggerAlarm(&deviceOn);
       }
       
       turnOffLED();
-      delayMs(100);
+      //delayMs(100);
         
     } 
 }
