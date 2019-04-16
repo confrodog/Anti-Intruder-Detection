@@ -85,7 +85,7 @@ int main(void){
         prevLight = light;
       }
   
-      while(deviceOn && (tooFar|| motionB || light)){ // took out motion here, but will need later
+      while(deviceOn && (tooFar|| motionB || (light > thresh))){ // took out motion here, but will need later
         lightLED();
         triggerAlarm();
       }
