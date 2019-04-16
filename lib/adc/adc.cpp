@@ -40,3 +40,7 @@ void initADC0()
     ADCSRA |= (1<<ADSC);
         
 }
+
+int detectLaser(){
+    
+}

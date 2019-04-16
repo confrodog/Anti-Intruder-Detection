@@ -6,6 +6,7 @@
 #include "pir.h"
 #include "pwm.h"
 #include "switch.h"
+#include "adc.h"
 #include "math.h"
 
 #define thresh 300
@@ -23,9 +24,11 @@ int main(void){
   //checks for tripping the alarm
   bool motionB = false; 
   bool tooFar = false;
+  int light = 0;
 
   bool prevMotion = false;
   bool prevTooFar = false;
+  int prevLight = 0;
   initTimer1(); //for testing
   initLED(); //for testing
   initPIR(); //motion sensor
@@ -34,12 +37,7 @@ int main(void){
   initADXL345(); //accelerometer
   initPWMTimer3();
   initSwitchPB1();
-  int buttonpin=3; //define the port of light blocking module
-  int val = HIGH;//define digital variable val
-  int prevVal = HIGH;
-
-  // pinMode(Led,OUTPUT);//define digital variable val
-  pinMode(buttonpin,INPUT);//define light blocking module as a output port
+  initADC0();
 
   while(1) {
 
@@ -57,8 +55,8 @@ int main(void){
         state = waitPress;
         break;
     }
-      //read the photointerrupter 
-      val=digitalRead(buttonpin);
+      //read the photoresistor
+      light = detectLaser();
 
       //bool to check if the device has been moved past the thresh value
       tooFar = (abs(getZ()) > thresh);
@@ -80,16 +78,16 @@ int main(void){
         Serial.flush();
         prevTooFar = tooFar;
       }
-      if (val != prevVal) {
+      if (light != prevLight) {
         Serial.print("laser interrupted: \t");
-        Serial.println(val);
+        Serial.println(light);
         Serial.flush();
-        prevVal = val;
+        prevLight = light;
       }
   
-      while(deviceOn && (tooFar|| motionB || val)){ // took out motion here, but will need later
+      while(deviceOn && (tooFar|| motionB || light)){ // took out motion here, but will need later
         lightLED();
-        triggerAlarm(&deviceOn);
+        triggerAlarm();
       }
       
       turnOffLED();

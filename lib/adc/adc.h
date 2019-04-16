@@ -7,5 +7,6 @@
 #define ADC_H
 
 void initADC0();
+int detectLaser();
 
 #endif
