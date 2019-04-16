@@ -29,7 +29,7 @@ int main(void){
   initTimer1(); //for testing
   initLED(); //for testing
   initPIR(); //motion sensor
-  delayMs(10000); //PIR takes a minute to warm up
+  delayMs(30000); //PIR takes a minute to warm up
   
   initADXL345(); //accelerometer
   initPWMTimer3();
@@ -86,8 +86,6 @@ int main(void){
         Serial.flush();
         prevVal = val;
       }
-
-      // 
   
       while(deviceOn && (tooFar|| motionB || val)){ // took out motion here, but will need later
         lightLED();
@@ -95,7 +93,6 @@ int main(void){
       }
       
       turnOffLED();
-      //delayMs(100);
         
     } 
 }
