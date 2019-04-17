@@ -1,4 +1,6 @@
-
+/*
+MUST WAIT 30 SECONDS INITIALLY FOR PIR, BE PATIENT
+*/
 #include <Arduino.h>
 #include "adxl345.h"
 #include "led.h"
@@ -24,23 +26,23 @@ int main(void){
   //checks for tripping the alarm
   bool motionB = false; 
   bool tooFar = false;
-  int light = 0;
+  bool light = 0;
 
   bool prevMotion = false;
   bool prevTooFar = false;
-  int prevLight = 0;
-  initTimer1(); //for testing
+  bool prevLight = 0;
+  initTimer1(); //for state machine
   initLED(); //for testing
   initPIR(); //motion sensor
   delayMs(30000); //PIR takes a minute to warm up
   
   initADXL345(); //accelerometer
-  initPWMTimer3();
-  initSwitchPB1();
-  initADC0();
+  initPWMTimer3(); //buzzer
+  initSwitchPB1(); //to turn device on, reset button for off
+  initADC0(); // for photoresistor
 
   while(1) {
-
+    //STATE MACHINE
     switch(state){
       case waitPress:
         break;
@@ -56,16 +58,15 @@ int main(void){
         break;
     }
       //read the photoresistor
-      light = detectLaser();
+      light = detectLaser() < thresh;                                 //MIGHT NEED TO CHANGE THIS THRESH
 
-      //bool to check if the device has been moved past the thresh value
+      //bool to check if the device has been
+      //moved past the thresh value
       tooFar = (abs(getZ()) > thresh);
 
       //uses PIR sensor to check if any motion
       motionB = detectMotion();
       
-      //Serial.print("Device on?: \t");
-      //Serial.println(deviceOn);
       if (motionB != prevMotion) {
         Serial.print("Motion: \t");
         Serial.println(motionB);
@@ -85,13 +86,10 @@ int main(void){
         prevLight = light;
       }
   
-      while(deviceOn && (tooFar|| motionB || (light > thresh))){ // took out motion here, but will need later
+      while(deviceOn && (tooFar || motionB || light)){
         lightLED();
-        triggerAlarm();
-      }
-      
-      turnOffLED();
-        
+        triggerAlarm(); //Star Wars alarm plays for approx. 1 minute
+      } 
     } 
 }
 
