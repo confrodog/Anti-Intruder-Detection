@@ -11,7 +11,8 @@ MUST WAIT 30 SECONDS INITIALLY FOR PIR, BE PATIENT
 #include "adc.h"
 #include "math.h"
 
-#define thresh 300
+#define thresh 350
+#define lightThresh 900
 
 typedef enum stateType_enum{
   waitPress, debouncePress, waitRelease, debounceRelease
@@ -58,8 +59,8 @@ int main(void){
         break;
     }
       //read the photoresistor
-      light = detectLaser() < thresh;                                 //MIGHT NEED TO CHANGE THIS THRESH
-
+      light = detectLaser() < lightThresh;                                 //MIGHT NEED TO CHANGE THIS THRESH
+      //Serial.println(detectLaser());
       //bool to check if the device has been
       //moved past the thresh value
       tooFar = (abs(getZ()) > thresh);
@@ -82,6 +83,7 @@ int main(void){
       if (light != prevLight) {
         Serial.print("laser interrupted: \t");
         Serial.println(light);
+        Serial.println(detectLaser());
         Serial.flush();
         prevLight = light;
       }

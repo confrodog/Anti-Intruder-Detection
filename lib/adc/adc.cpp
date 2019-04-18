@@ -42,5 +42,7 @@ void initADC0()
 }
 
 int detectLaser(){
-    return ADCL + (ADCH<<8);
+    int temp = ADCL;
+    temp += (ADCH << 8);
+    return temp;
 }
