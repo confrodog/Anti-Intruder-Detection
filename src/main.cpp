@@ -35,7 +35,12 @@ int main(void){
   initTimer1(); //for state machine
   initLED(); //for testing
   initPIR(); //motion sensor
-  delayMs(30000); //PIR takes a minute to warm up
+  int thirty = 30;
+
+  while(thirty > 0){
+    delayMs(1000); //PIR takes a minute to warm up
+    thirty--;
+  }
   
   initADXL345(); //accelerometer
   initPWMTimer3(); //buzzer
@@ -60,7 +65,7 @@ int main(void){
     }
       //read the photoresistor
       light = detectLaser() < lightThresh;                                 //MIGHT NEED TO CHANGE THIS THRESH
-      //Serial.println(detectLaser());
+      
       //bool to check if the device has been
       //moved past the thresh value
       tooFar = (abs(getZ()) > thresh);
@@ -97,10 +102,11 @@ int main(void){
 
  ISR(PCINT0_vect){
   if(state == waitPress){
-
+    Serial.println("buttonPressed");
     state = debouncePress;
   }
   else if (state == waitRelease){
+    Serial.println("buttonReleased");
     deviceOn = !deviceOn;
     state = debounceRelease;
   }  
