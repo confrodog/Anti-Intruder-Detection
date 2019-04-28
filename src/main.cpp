@@ -25,8 +25,8 @@ int main(void){
   Serial.begin(9600);
   
   //checks for tripping the alarm
-  bool motionB = false; 
-  bool tooFar = false;
+  bool motion = false; 
+  bool tamper = false;
   bool light = 0;
 
   bool prevMotion = false;
@@ -48,6 +48,7 @@ int main(void){
   initADC0(); // for photoresistor
 
   while(1) {
+    Serial.println("Device Activated");
     //STATE MACHINE
     switch(state){
       case waitPress:
@@ -68,22 +69,22 @@ int main(void){
       
       //bool to check if the device has been
       //moved past the thresh value
-      tooFar = (abs(getZ()) > thresh);
+      tamper = (abs(getZ()) > thresh);
 
       //uses PIR sensor to check if any motion
-      motionB = detectMotion();
+      motion = detectMotion();
       
-      if (motionB != prevMotion) {
+      if (motion != prevMotion) {
         Serial.print("Motion: \t");
-        Serial.println(motionB);
+        Serial.println(motion);
         Serial.flush();
-        prevMotion = motionB;
+        prevMotion = motion;
       }
-      if (tooFar != prevTooFar) {
+      if (tamper != prevTooFar) {
         Serial.print("isMoved: \t");
-        Serial.println(tooFar);
+        Serial.println(tamper);
         Serial.flush();
-        prevTooFar = tooFar;
+        prevTooFar = tamper;
       }
       if (light != prevLight) {
         Serial.print("laser interrupted: \t");
@@ -93,7 +94,7 @@ int main(void){
         prevLight = light;
       }
   
-      while(deviceOn && (tooFar || motionB || light)){
+      while(deviceOn && (tamper || (motion && light))){
         lightLED();
         triggerAlarm(); //Star Wars alarm plays for approx. 1 minute
       } 
